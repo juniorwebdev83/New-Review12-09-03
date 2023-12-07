@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const passportLocalMongoose = require('passport-local-mongoose');
 
 const reviewSchema = new mongoose.Schema({
   text: String,
@@ -7,6 +8,7 @@ const reviewSchema = new mongoose.Schema({
   likes: Number,
   // other fields as needed
 });
+reviewSchema.plugin(passportLocalMongoose);
 
 const Review = mongoose.model('Review', reviewSchema);
 
