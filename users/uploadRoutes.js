@@ -1,11 +1,16 @@
 // uploadRoutes.js
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
 const cloudinary = require('../cloudinaryConfig'); // Update the path based on your project structure
 
-router.post('/upload', async (req, res) => {
+// Set up multer middleware
+const upload = multer({ dest: 'uploads/' }).single('image');
+
+// Route for handling image upload
+router.post('/upload', upload, async (req, res) => {
   try {
-    const result = await cloudinary.uploader.upload(req.body.image); // Assuming image is sent in the request body
+    const result = await cloudinary.uploader.upload(req.file.path);
     res.json({ success: true, url: result.secure_url });
   } catch (error) {
     console.error('Error uploading image:', error);
