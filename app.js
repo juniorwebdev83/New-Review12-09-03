@@ -1,3 +1,4 @@
+// app.js
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
@@ -28,15 +29,15 @@ passport.use(new LocalStrategy(Review.authenticate()));
 passport.serializeUser(Review.serializeUser());
 passport.deserializeUser(Review.deserializeUser());
 
-// Add routes
-app.use('/images', require('./users/uploadRoutes'));
+// Your existing routes for submitting and retrieving reviews
+
+// Add routes for user registration
+app.use('/users', require('./users/userRoutes'));
 
 // Serve the HTML form
 app.get('/upload', (req, res) => {
   res.sendFile(path.join(__dirname, 'upload.html'));
 });
-
-// Your existing routes for submitting and retrieving reviews
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

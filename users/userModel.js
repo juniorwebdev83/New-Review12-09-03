@@ -1,5 +1,6 @@
-// users/userModel.js
+// userModel.js
 const mongoose = require('mongoose');
+const passportLocalMongoose = require('passport-local-mongoose');
 
 const userSchema = new mongoose.Schema({
   email: {
@@ -7,15 +8,12 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  password: {
-    type: String,
-    required: true,
-  },
-  // Add a field for the Cloudinary image URL
-  cloudinaryImageUrl: {
-    type: String,
-  },
+  city: String,
+  state: String,
 });
+
+// Passport-Local Mongoose will use 'username' as the default field for authentication
+userSchema.plugin(passportLocalMongoose);
 
 const User = mongoose.model('User', userSchema);
 

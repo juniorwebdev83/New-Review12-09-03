@@ -1,13 +1,19 @@
-// users/userController.js
-const User = require('./userModel');
+const axios = require('axios');
 
-const registerUser = async (email, password, cloudinaryImageUrl) => {
+const registerUser = async (email, password, city, state) => {
   try {
-    const user = new User({ email, password, cloudinaryImageUrl });
-    await user.save();
+    // Make a POST request to the registration route
+    await axios.post('http://localhost:3000/users/register', {
+      email,
+      password,
+      confirmPassword: password, // Assuming confirmPassword is not needed here
+      city,
+      state,
+    });
+
     console.log('User registered successfully.');
   } catch (error) {
-    console.error('Error registering user:', error.message);
+    throw error; // Handle the error in the route
   }
 };
 
