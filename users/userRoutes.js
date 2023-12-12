@@ -1,9 +1,6 @@
-// users/userRoutes.js
 const express = require('express');
 const passport = require('passport');
 const User = require('./userModel');
-const path = require('path');
-
 const router = express.Router();
 
 // Register user route

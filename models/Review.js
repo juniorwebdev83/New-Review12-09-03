@@ -6,6 +6,7 @@ const reviewSchema = new mongoose.Schema({
     rating: Number,
     cloudinaryImageUrl: String,
     likes: Number,
+    username: { type: String, required: true }, // Ensure a valid username is provided
     // other fields as needed
 });
 

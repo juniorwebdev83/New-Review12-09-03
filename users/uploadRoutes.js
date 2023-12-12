@@ -1,27 +1,32 @@
-// uploadRoutes.js
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const cloudinaryStorage = require('multer-storage-cloudinary');
-const cloudinary = require('../cloudinaryConfig'); // Update the path based on your project structure
+const cloudinary = require('../cloudinaryConfig');
+const Review = require('../models/Review');
 
-// Set up multer middleware with Cloudinary storage
-const storage = cloudinaryStorage({
-  cloudinary: cloudinary,
-  folder: 'uploads', // Change the folder name as needed
-  allowedFormats: ['jpg', 'png'],
-});
+const upload = multer({ dest: 'uploads/' });
 
-const upload = multer({ storage: storage }).single('image');
-
-// Route for handling image upload
-router.post('/upload', upload, async (req, res) => {
+// POST request to handle image upload
+router.post('/upload', upload.single('image'), async (req, res) => {
   try {
+    // Use Cloudinary SDK to upload the image
     const result = await cloudinary.uploader.upload(req.file.path);
-    res.json({ success: true, url: result.secure_url });
+
+    // Create a new review with the form data and Cloudinary image URL
+    const newReview = new Review({
+      text: req.body.text,
+      rating: req.body.rating,
+      cloudinaryImageUrl: result.secure_url,
+      // other fields as needed
+    });
+
+    // Save the new review to the database
+    await newReview.save();
+
+    res.json({ success: true, imageUrl: result.secure_url });
   } catch (error) {
     console.error('Error uploading image:', error);
-    res.status(500).json({ success: false, message: 'Image upload failed' });
+    res.status(500).json({ success: false, error: 'Image upload failed' });
   }
 });
 

@@ -1,4 +1,3 @@
-//userController.js//
 const axios = require('axios');
 
 const registerUser = async (email, password, city, state) => {
