@@ -1,15 +1,15 @@
+// Import required modules
 require('dotenv-safe').config({ example: false });
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
-const cloudinary = require('./cloudinaryConfig');
-const Review = require('./models/Review');
-const User = require('./models/User');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
+// Create an instance of the Express application
 const app = express();
 
+// Function to connect to the MongoDB database
 async function connectToDatabase() {
   try {
     await mongoose.connect(process.env.MONGODB_URI, {});
@@ -20,29 +20,41 @@ async function connectToDatabase() {
   }
 }
 
+// Call the function to connect to the database
 connectToDatabase();
 
-// Middleware
+// Middleware to log incoming requests
+app.use((req, res, next) => {
+  console.log(`Received ${req.method} request to ${req.url}`);
+  next();
+});
+
+// Middleware to parse JSON and handle URL-encoded data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Your routes
-app.use('/users', require('./users/imageRoutes'));
+// Routes for user-related operations
+app.use('./users', require('./users/userRoutes'));  // Ensure correct path here
 
+// Welcome route
 app.get('/', (req, res) => {
   res.send('Welcome to the Review App');
 });
 
-app.get('/upload', (req, res) => {
-  res.sendFile(path.join(__dirname, 'upload.html'));
+// Routes for user-related operations
+app.use('/users', require('./users/userRoutes'));  // Ensure correct path here
+
+// Welcome route
+app.get('/', (req, res) => {
+  res.send('Welcome to the Review App');
 });
 
-// New route for the registration form
+// Route for serving the registration form
 app.get('/forms/registerForm.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'Forms', 'registerForm.html'));
 });
 
-// Your JWT-based authentication middleware
+// JWT-based authentication middleware
 function authenticateJWT(req, res, next) {
   const token = req.header('x-auth-token');
 
