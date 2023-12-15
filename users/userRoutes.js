@@ -3,7 +3,8 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../users/userModel'); // Adjust the relative path here
+const Review = require('../models/Review');
+const User = require('../models/User'); // Adjust the relative path here
 const { authenticateJWT } = require('./auth'); // Adjust the relative path here
 
 // Helper function to generate a unique username
