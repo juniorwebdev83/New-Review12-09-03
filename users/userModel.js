@@ -1,6 +1,5 @@
-//users// userModel.js
+// users/userModel.js
 const mongoose = require('mongoose');
-const passportLocalMongoose = require('passport-local-mongoose');
 
 const userSchema = new mongoose.Schema({
   email: {
@@ -11,9 +10,6 @@ const userSchema = new mongoose.Schema({
   city: String,
   state: String,
 });
-
-// Passport-Local Mongoose will use 'username' as the default field for authentication
-userSchema.plugin(passportLocalMongoose);
 
 const User = mongoose.model('User', userSchema);
 
