@@ -2,22 +2,25 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const cloudinaryStorage = require('multer-storage-cloudinary');
-const cloudinary = require('../cloudinaryConfig'); // Update the path based on your project structure
+const cloudinary = require('cloudinary').v2;
 
-// Set up multer middleware with Cloudinary storage
-const storage = cloudinaryStorage({
-  cloudinary: cloudinary,
-  folder: 'uploads', // Change the folder name as needed
-  allowedFormats: ['jpg', 'png'],
-});
-
+// Set up multer middleware
+const storage = multer.memoryStorage(); // Store the file in memory
 const upload = multer({ storage: storage }).single('image');
 
 // Route for handling image upload
 router.post('/upload', upload, async (req, res) => {
   try {
-    const result = await cloudinary.uploader.upload(req.file.path);
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No file uploaded' });
+    }
+
+    // Upload the image to Cloudinary
+    const result = await cloudinary.uploader.upload(req.file.buffer, {
+      folder: 'uploads', // Change the folder name as needed
+      allowed_formats: ['jpg', 'png'],
+    });
+
     res.json({ success: true, url: result.secure_url });
   } catch (error) {
     console.error('Error uploading image:', error);

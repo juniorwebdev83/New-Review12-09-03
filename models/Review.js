@@ -1,11 +1,16 @@
 const mongoose = require('mongoose');
 
 const reviewSchema = new mongoose.Schema({
-  text: String,
+  // existing fields
+  productName: String,
   rating: Number,
-  cloudinaryImageUrl: String,
-  likes: Number,
-  // other fields as needed
+  comments: String,
+  // new field for user reference
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
 });
 
 const Review = mongoose.model('Review', reviewSchema);

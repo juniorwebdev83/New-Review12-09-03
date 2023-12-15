@@ -34,15 +34,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes for user-related operations
-app.use('./users', require('./users/userRoutes'));  // Ensure correct path here
-
-// Welcome route
-app.get('/', (req, res) => {
-  res.send('Welcome to the Review App');
-});
-
-// Routes for user-related operations
-app.use('/users', require('./users/userRoutes'));  // Ensure correct path here
+app.use('/users', require('./users/userRoutes'));
 
 // Welcome route
 app.get('/', (req, res) => {
@@ -54,23 +46,9 @@ app.get('/forms/registerForm.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'Forms', 'registerForm.html'));
 });
 
-// JWT-based authentication middleware
-function authenticateJWT(req, res, next) {
-  const token = req.header('x-auth-token');
-
-  if (!token) return res.status(401).json({ message: 'No token provided' });
-
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ message: 'Token verification failed' });
-
-    req.user = user;
-    next();
-  });
-}
-
-// Example route that requires authentication
-app.get('/dashboard', authenticateJWT, (req, res) => {
-  res.send(`Welcome to the dashboard, ${req.user.email}!`);
+// Route for serving the review form
+app.get('/review-form', (req, res) => {
+  res.sendFile(path.join(__dirname, 'Forms', 'ReviewForm.html'));
 });
 
 // Start the server
