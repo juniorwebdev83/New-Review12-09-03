@@ -1,44 +1,34 @@
 // routes/userRoutes.js
 const express = require('express');
-const User = require('../models/User'); // Import your User model
-
+const bcrypt = require('bcrypt'); // Add this line to import bcrypt
 const router = express.Router();
+const User = require('../models/User');
 
 // User registration route
 router.post('/register', async (req, res) => {
-  const { username, email, password } = req.body;
+  const { email, password, city, state } = req.body;
 
-  // Validate user input (e.g., using joi library)
+  // Validate user input (you can use a validation library like Joi here)
 
-  const newUser = new User({ username, email, password }); // Create new user object
+  // Hash the password
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  // Create a new user
+  const newUser = new User({
+    email,
+    password: hashedPassword,
+    city,
+    state,
+  });
 
   try {
-    await newUser.save(); // Save user data to MongoDB
-    res.send({ message: 'Registration successful!' }); // Send confirmation message
+    // Save user data to MongoDB
+    await newUser.save();
+    res.status(201).send({ message: 'Registration successful!' });
   } catch (error) {
     // Handle errors such as duplicate email or validation failures
     res.status(400).send({ error: error.message });
   }
-});
-
-// User login route
-router.post('/login', async (req, res) => {
-  const { username, password } = req.body;
-
-  // Validate user credentials against your database
-  const user = await User.findOne({ username }).select('+password'); // Include password field
-
-  if (!user || !user.comparePassword(password)) { // Compare password using a secure method
-    return res.status(401).send({ error: 'Invalid username or password' });
-  }
-
-  // Generate authentication token (e.g., using jsonwebtoken library)
-  const token = generateToken(user._id);
-
-  // Send token to client through cookie or header
-  res.cookie('auth_token', token, { httpOnly: true }); // Cookie option is just an example
-
-  res.send({ message: 'Login successful!', user: user }); // Send user data and success message
 });
 
 module.exports = router;
