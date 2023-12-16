@@ -41,28 +41,20 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes for user-related operations
-app.use('/users', require('./users/userRoutes'));
-
-
-
-
-
+app.use('/users', require('./routes/userRoutes'));
 
 // Route for serving the registration form
 app.get('/forms/registerForm.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'Forms', 'registerForm.html'));
 });
 
-// Route for review form
+// Route for serving the review form
 app.get('/forms/ReviewForm.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'Forms', 'ReviewForm.html'));
 });
 
-
-
-
 // Routes for review-related operations
-app.use('/reviews', require('./routes/reviewRoutes')); // Make sure to adjust the path
+app.use('/reviews', require('./routes/reviewRoutes')); // Review routes are in reviewRoutes.js
 
 // Start the server
 const PORT = process.env.PORT || 3000;
