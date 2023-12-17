@@ -44,9 +44,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/users', require('./routes/userRoutes'));
 
 // Route for serving the registration form
-app.get('/forms/registerForm.html', (req, res) => {
+app.get('/Forms/registerForm.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'Forms', 'registerForm.html'));
 });
+
 
 // Route for serving the review form
 app.get('/forms/ReviewForm.html', (req, res) => {

@@ -1,6 +1,8 @@
 // routes/userRoutes.js
+const bcrypt = require('bcrypt');
+
 const express = require('express');
-const bcrypt = require('bcrypt'); // Add this line to import bcrypt
+
 const router = express.Router();
 const User = require('../models/User');
 
