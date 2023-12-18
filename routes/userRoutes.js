@@ -1,4 +1,4 @@
-//userRoutes//
+// userRoutes.js
 const express = require('express');
 const bcrypt = require('bcrypt');
 const router = express.Router();
@@ -6,33 +6,31 @@ const User = require('../models/User');
 
 // User registration route
 router.post('/register', async (req, res) => {
-  const { email, password, city, state } = req.body;
+  // ... (existing registration route code)
+});
+
+// User login route
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
 
   try {
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Find the user by email
+    const user = await User.findOne({ email });
 
-    // Create a new user
-    const newUser = new User({
-      email,
-      password: hashedPassword,
-      city,
-      state,
-    });
+    // Check if the user exists and the password is correct
+    if (user && (await bcrypt.compare(password, user.password))) {
+      // Generate a JWT token for authentication
+      const token = user.generateAuthToken();
 
-    // Save user data to MongoDB
-    await newUser.save();
-    res.status(201).send({ message: 'Registration successful!' });
-  } catch (error) {
-    // Handle errors such as duplicate email or validation failures
-    if (error.code === 11000) {
-      // Duplicate key error
-      const duplicateKey = Object.keys(error.keyPattern)[0];
-      const duplicateValue = error.keyValue[duplicateKey];
-      return res.status(400).send({ error: `User with ${duplicateKey} "${duplicateValue}" already registered.` });
+      // Send the token in the response
+      res.json({ token });
+    } else {
+      // If the user doesn't exist or the password is incorrect, send an error response
+      res.status(401).json({ error: 'Invalid email or password' });
     }
-
-    res.status(400).send({ error: error.message });
+  } catch (error) {
+    // Handle any errors that occur during the login process
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
