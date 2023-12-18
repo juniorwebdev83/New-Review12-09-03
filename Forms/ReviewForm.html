@@ -1,11 +1,17 @@
-<form action="/submit-review" method="post" enctype="multipart/form-data">
-
-  <!-- Add your review form fields here -->
-  <label for="productName">Product Name:</label>
-  <input type="text" id="productName" name="productName" required>
-
+<!-- Review Form -->
+<form action="/reviews/submit-review" method="post" enctype="multipart/form-data">
   <label for="companyName">Company Name:</label>
   <input type="text" id="companyName" name="companyName" required>
+
+  <!-- Add city, state, and county fields -->
+  <label for="city">City:</label>
+  <input type="text" id="city" name="city" required>
+
+  <label for="state">State:</label>
+  <input type="text" id="state" name="state" required>
+
+  <label for="county">County:</label>
+  <input type="text" id="county" name="county" required>
 
   <label for="rating">Rating:</label>
   <input type="number" id="rating" name="rating" min="1" max="5" required>
@@ -14,11 +20,7 @@
   <textarea id="comments" name="comments" rows="4" required></textarea>
 
   <!-- Add input for image -->
-  input type="file" id="image" name="image" accept="image/*" required>
-<button type="submit" id="submit-review-btn">Submit Review</button>
-<!-- <div id="loading-indicator" style="display: none;">
-  Loading...
-</div> -->
+  <input type="file" id="image" name="image" accept="image/*" required>
 
   <button type="submit">Submit Review</button>
 </form>
