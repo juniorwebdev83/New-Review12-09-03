@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8sh+WyjrTBqgBo5M5R26RFZJQ9CC5UfGv+2EEl"
+    crossorigin="anonymous">
+  <link rel="stylesheet" href="styles.css">
+  <title>Review App</title>
+</head>
+
+<body>
+  <div class="container mt-4">
+    <!-- Loop to generate review cards -->
+    <div id="reviewCardsContainer"></div>
+
+    <!-- Additional Card with Adjusted Margin -->
+    <div class="card review-card">
+      <img src="https://via.placeholder.com/150" class="card-img-top" alt="Company D Image">
+      <div class="card-body">
+        <h5 class="card-title">Company D</h5>
+        <p class="card-text">This is a sample review for Company D.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Review Form -->
+  <div class="form-container mt-4">
+    <form id="reviewForm" action="/reviews/submit-review" method="post" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="companyName">Company Name</label>
+        <input type="text" class="form-control" id="companyName" placeholder="Enter company name">
+      </div>
+      <div class="form-group">
+        <label for="reviewText">Review</label>
+        <textarea class="form-control" id="reviewText" rows="3" placeholder="Write your review"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="image">Upload Receipt Image</label>
+        <input type="file" class="form-control-file" id="image" name="image" accept="image/*" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit Review</button>
+    </form>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+    integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+    integrity="sha384-bT9buA8lybVdKlW+0z1fTXP5orA2x60WgCEIn6VECTLR/Z5l9TUu7jHLI0Ua/RaG"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+    integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8sh+WyjrTBqgBo5M5R26RFZJQ9CC5UfGv+2EEl"
+    crossorigin="anonymous"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const reviewCardsContainer = document.getElementById('reviewCardsContainer');
+      const companies = ['Company A', 'Company B', 'Company C'];
+
+      // Loop to generate review cards
+      companies.forEach((company, index) => {
+        const cardHtml = `
+          <div class="card review-card">
+            <img src="https://via.placeholder.com/150" class="card-img-top" alt="${company} Image">
+            <div class="card-body">
+              <h5 class="card-title">${company}</h5>
+              <p class="card-text">This is a sample review for ${company}.</p>
+            </div>
+          </div>
+        `;
+        reviewCardsContainer.innerHTML += cardHtml;
+      });
+    });
+  </script>
+</body>
+
+</html>

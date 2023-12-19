@@ -1,0 +1,17 @@
+/* styles.css */
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.review-card {
+  margin-bottom: -01px;
+}
+
+.form-container {
+  margin-top: 20px;
+}
+
+/* Add more styles as needed */
