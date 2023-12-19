@@ -1,0 +1,13 @@
+POST http://localhost:3000/reviews/submit-review
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3QyQGdtYWlsLmNvbSIsInVzZXJJZCI6IjY1ODFkMDU5NGVlMGViZGExOTc5YjQyYSIsImlhdCI6MTcwMzAwOTEwNiwiZXhwIjoxNzAzMDEyNzA2fQ.ozTy0DB-zKEkodj1aVOis-ibbO96EH49CEdM0qq8Si0
+
+{
+  "productName": "Example Product",
+  "rating": 5,
+  "comments": "This is a great product!",
+  "companyId": "TESTING",
+  "city": "City Name",
+  "state": "State Name",
+  "county": "County Name"
+}

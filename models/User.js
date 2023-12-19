@@ -1,4 +1,3 @@
-// models/User.js
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -19,6 +18,14 @@ userSchema.methods.authenticate = async function (password) {
 };
 
 userSchema.methods.generateAuthToken = function () {
+  if (!this.email || !this._id) {
+    throw new Error('User email or ID is undefined');
+  }
+
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT secret is undefined');
+  }
+
   return jwt.sign({ email: this.email, userId: this._id }, process.env.JWT_SECRET, {
     expiresIn: '1h', // Token expires in 1 hour, adjust as needed
   });

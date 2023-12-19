@@ -44,9 +44,10 @@ app.get('/Forms/registerForm.html', (req, res) => {
 	res.sendFile(path.join(__dirname, 'Forms', 'registerForm.html'));
 });
 // Route for serving the review form
-app.get('/Forms/ReviewForm.html', (req, res) => {
-	res.sendFile(path.join(__dirname, 'Forms', 'ReviewForm.html'));
-  });
+app.get('/forms/ReviewForm.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'Forms', 'ReviewForm.html'));
+});
+
   // Route for serving the login form
 app.get('/Forms/loginForm.html', (req, res) => {
 	res.sendFile(path.join(__dirname, 'Forms', 'loginForm.html'));
