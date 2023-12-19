@@ -6,7 +6,28 @@ const User = require('../models/User');
 
 // User registration route
 router.post('/register', async (req, res) => {
-  // ... (existing registration route code)
+  try {
+    const { email, password, city, state } = req.body;
+
+    // Hash the password before saving it to the database
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create a new user
+    const newUser = new User({
+      email,
+      password: hashedPassword,
+      city,
+      state,
+    });
+
+    // Save the user to the database
+    await newUser.save();
+
+    res.status(201).json({ message: 'User registered successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
 // User login route
@@ -30,6 +51,7 @@ router.post('/login', async (req, res) => {
     }
   } catch (error) {
     // Handle any errors that occur during the login process
+    console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
