@@ -1,0 +1,398 @@
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1033{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
+\pard\sl240\slmult1\qj\f0\fs22\lang9 Root directory: New-Review12-09-03\par
+\par
+.env\line //.env//\par
+MONGODB_URI=mongodb+srv://infojr83:joaquim2022@cluster0.nhmo9fe.mongodb.net/?retryWrites=true&w=majority\par
+CLOUDINARY_CLOUD_NAME=review-site\par
+CLOUDINARY_API_KEY=943693391396375\par
+CLOUDINARY_API_SECRET=MgLL35GMgJetRLaKr-Qhx45tqsM\par
+SESSION_SECRET=MgLL35GMgJetRLaKr-Qhx45tqsM\par
+\par
+JWT_SECRET=myLongSecureJWTSecretKey2023!#$\par
+\par
+\par
+\par
+.env.example\par
+.gitignore\par
+app.js\line // Import required modules\par
+require('dotenv-safe').config(\{\par
+\tab example: false\par
+\});\par
+const express = require('express');\par
+const mongoose = require('mongoose');\par
+const path = require('path');\par
+const jwt = require('jsonwebtoken');\par
+const cloudinary = require('cloudinary').v2;\par
+// Create an instance of the Express application\par
+const app = express();\par
+// Function to connect to the MongoDB database\par
+async function connectToDatabase() \{\par
+\tab try \{\par
+\tab\tab await mongoose.connect(process.env.MONGODB_URI, \{\});\par
+\tab\tab console.log('Connected to MongoDB');\par
+\tab\} catch(error) \{\par
+\tab\tab console.error('Error connecting to MongoDB:', error);\par
+\tab\tab process.exit(1);\par
+\tab\}\par
+\}\par
+// Call the function to connect to the database\par
+connectToDatabase();\par
+// Configure Cloudinary\par
+cloudinary.config(\{\par
+\tab cloud_name: process.env.CLOUDINARY_CLOUD_NAME,\par
+\tab api_key: process.env.CLOUDINARY_API_KEY,\par
+\tab api_secret: process.env.CLOUDINARY_API_SECRET,\par
+\});\par
+// Middleware to log incoming requests\par
+app.use((req, res, next) => \{\par
+\tab console.log(`Received $\{req.method\} request to $\{req.url\}`);\par
+\tab next();\par
+\});\par
+// Middleware to parse JSON and handle URL-encoded data\par
+app.use(express.json());\par
+app.use(express.urlencoded(\{\par
+\tab extended: true\par
+\}));\par
+// Routes for user-related operations\par
+app.use('/users', require('./routes/userRoutes'));\par
+// Route for serving the registration form\par
+app.get('/Forms/registerForm.html', (req, res) => \{\par
+\tab res.sendFile(path.join(__dirname, 'Forms', 'registerForm.html'));\par
+\});\par
+// Route for serving the review form\par
+app.get('/forms/ReviewForm.html', (req, res) => \{\par
+    res.sendFile(path.join(__dirname, 'Forms', 'ReviewForm.html'));\par
+\});\par
+\par
+  // Route for serving the login form\par
+app.get('/Forms/loginForm.html', (req, res) => \{\par
+\tab res.sendFile(path.join(__dirname, 'Forms', 'loginForm.html'));\par
+  \});\par
+  \par
+// Routes for review-related operations\par
+app.use('/reviews', require('./routes/reviewRoutes')); // Review routes are in reviewRoutes.js\par
+// Start the server\par
+const PORT = process.env.PORT || 3000;\par
+app.listen(PORT, () => \{\par
+\tab console.log(`Server is running on port $\{PORT\}`);\par
+\});\par
+cloudinaryConfig.js\line const cloudinary = require('cloudinary').v2;\par
+\par
+cloudinary.config(\{ \par
+  cloud_name: 'review-site', \par
+  api_key: '943693391396375', \par
+  api_secret: 'MgLL35GMgJetRLaKr-Qhx45tqsM' \par
+\});\par
+\par
+\par
+console.log('Connected to Cloudinary');\par
+module.exports = cloudinary;\par
+index.html\par
+LICENSE\par
+package.json\par
+README.md\par
+test.http\par
+yarn.lock\par
+models (folder)\par
+companyModel.js\line const mongoose = require('mongoose');\par
+\par
+const companySchema = new mongoose.Schema(\{\par
+  name: \{\par
+    type: String,\par
+    required: true,\par
+    unique: true,\par
+  \},\par
+  city: String,\par
+  state: String,\par
+  county: String, // Change from "country" to "county"\par
+\});\par
+\par
+const Company = mongoose.model('Company', companySchema);\par
+\par
+module.exports = Company;\par
+Review.js\line const mongoose = require('mongoose');\par
+\par
+const reviewSchema = new mongoose.Schema(\{\par
+  productName: \{ type: String, required: true \},\par
+  rating: \{ type: Number, required: true \},\par
+  comments: \{ type: String, required: true \},\par
+  companyId: \{ type: mongoose.Schema.Types.ObjectId, ref: 'Company', required: true \},\par
+  userId: \{ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true \},\par
+  imageUrl: \{ type: String \},\par
+  city: String,\par
+  state: String,\par
+  county: String, // Change from "county" to "county"\par
+  // Add other fields as needed\par
+\}, \{ timestamps: true \});\par
+\par
+const Review = mongoose.model('Review', reviewSchema);\par
+\par
+module.exports = Review;\par
+User.js\line const mongoose = require('mongoose');\par
+const bcrypt = require('bcrypt');\par
+const jwt = require('jsonwebtoken');\par
+\par
+const userSchema = new mongoose.Schema(\{\par
+  email: \{ type: String, unique: true, required: true \},\par
+  password: \{ type: String, required: true \},\par
+  city: String,\par
+  state: String,\par
+\});\par
+\par
+userSchema.methods.hashPassword = async function (password) \{\par
+  return await bcrypt.hash(password, 10);\par
+\};\par
+\par
+userSchema.methods.authenticate = async function (password) \{\par
+  return await bcrypt.compare(password, this.password);\par
+\};\par
+\par
+userSchema.methods.generateAuthToken = function () \{\par
+  if (!this.email || !this._id) \{\par
+    throw new Error('User email or ID is undefined');\par
+  \}\par
+\par
+  if (!process.env.JWT_SECRET) \{\par
+    throw new Error('JWT secret is undefined');\par
+  \}\par
+\par
+  return jwt.sign(\{ email: this.email, userId: this._id \}, process.env.JWT_SECRET, \{\par
+    expiresIn: '1h', // Token expires in 1 hour, adjust as needed\par
+  \});\par
+\};\par
+\par
+module.exports = mongoose.models.User || mongoose.model('User', userSchema);\line models (folder)\par
+companyModel.js\par
+Review.js\par
+User.js\par
+routes (folder)\par
+reviewRoutes.js\line const express = require('express');\par
+const multer = require('multer');\par
+const Review = require('../models/Review');\par
+const User = require('../models/User');\par
+const \{ authenticateJWT \} = require('../users/auth');\par
+const axios = require('axios');\par
+const cloudinary = require('cloudinary').v2; // Import cloudinary\par
+const router = express.Router();\par
+\par
+// Set up multer middleware\par
+const storage = multer.memoryStorage();\par
+const upload = multer(\{ storage: storage \}).single('image');\par
+\par
+// Function to fetch location info from Google Maps Geocoding API\par
+// (Assuming you have this function already implemented)\par
+\par
+// Submit a review with image upload\par
+router.post('/submit-review', authenticateJWT, upload, async (req, res) => \{\par
+  try \{\par
+    const \{ productName, rating, comments \} = req.body;\par
+    const userId = req.user.userId;\par
+    const companyId = req.body.companyId;\par
+\par
+    // Check if an image is uploaded\par
+    let imageUrl = ''; // Initialize imageUrl\par
+\par
+    if (req.file) \{\par
+      // If an image is uploaded, upload it to Cloudinary\par
+      const result = await cloudinary.uploader.upload(req.file.buffer.toString('base64'));\par
+      imageUrl = result.secure_url; // Get the secure URL of the uploaded image\par
+    \}\par
+\par
+    // Your existing code for submitting a review goes here\par
+    // ...\par
+\par
+    // Create a new Review instance and save it to the database\par
+    const newReview = new Review(\{\par
+      productName,\par
+      rating,\par
+      comments,\par
+      companyId,\par
+      userId,\par
+      imageUrl, // Store the image URL in the database\par
+      city: req.body.city,\par
+      state: req.body.state,\par
+      county: req.body.county,\par
+    \});\par
+\par
+    await newReview.save();\par
+\par
+    res.status(201).json(\{ message: 'Review submitted successfully' \});\par
+  \} catch (error) \{\par
+    console.error(error);\par
+\par
+    if (error.message.includes('Validation failed')) \{\par
+      return res.status(400).json(\{ error: 'Invalid input data. Please check your fields.' \});\par
+    \}\par
+\par
+    res.status(500).json(\{ error: 'Internal Server Error' \});\par
+  \}\par
+\});\par
+\par
+module.exports = router;\par
+userRoutes.js\line // userRoutes.js\par
+const express = require('express');\par
+const bcrypt = require('bcrypt');\par
+const router = express.Router();\par
+const User = require('../models/User');\par
+\par
+// User registration route\par
+router.post('/register', async (req, res) => \{\par
+  try \{\par
+    const \{ email, password, city, state \} = req.body;\par
+\par
+    // Hash the password before saving it to the database\par
+    const hashedPassword = await bcrypt.hash(password, 10);\par
+\par
+    // Create a new user\par
+    const newUser = new User(\{\par
+      email,\par
+      password: hashedPassword,\par
+      city,\par
+      state,\par
+    \});\par
+\par
+    // Save the user to the database\par
+    await newUser.save();\par
+\par
+    res.status(201).json(\{ message: 'User registered successfully' \});\par
+  \} catch (error) \{\par
+    console.error(error);\par
+    res.status(500).json(\{ error: 'Internal Server Error' \});\par
+  \}\par
+\});\par
+\par
+// User login route\par
+router.post('/login', async (req, res) => \{\par
+  const \{ email, password \} = req.body;\par
+\par
+  try \{\par
+    // Find the user by email\par
+    const user = await User.findOne(\{ email \});\par
+\par
+    // Check if the user exists and the password is correct\par
+    if (user && (await bcrypt.compare(password, user.password))) \{\par
+      // Generate a JWT token for authentication\par
+      const token = user.generateAuthToken();\par
+\par
+      // Send the token in the response\par
+      res.json(\{ token \});\par
+    \} else \{\par
+      // If the user doesn't exist or the password is incorrect, send an error response\par
+      res.status(401).json(\{ error: 'Invalid email or password' \});\par
+    \}\par
+  \} catch (error) \{\par
+    // Handle any errors that occur during the login process\par
+    console.error(error);\par
+    res.status(500).json(\{ error: 'Internal Server Error' \});\par
+  \}\par
+\});\par
+\par
+module.exports = router;\par
+users (folder)\par
+auth.js\line const jwt = require('jsonwebtoken');\par
+\par
+function authenticateJWT(req, res, next) \{\par
+  const token = req.header('x-auth-token');\par
+\par
+  if (!token) \{\par
+    return res.status(401).json(\{ message: 'No token provided' \});\par
+  \}\par
+\par
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => \{\par
+    if (err) \{\par
+      console.error('Token verification failed:', err.message);\par
+      return res.status(403).json(\{ message: 'Token verification failed', error: err.message \});\par
+    \}\par
+\par
+    req.user = user;\par
+    next();\par
+  \});\par
+\}\par
+\par
+module.exports = \{\par
+  authenticateJWT,\par
+\};\par
+registerUser.html\par
+upload.html\par
+userController.js\line const axios = require('axios');\par
+const \{ email, password, city, state \} = req.body;\par
+\par
+try \{\par
+  // Make a POST request to the registration route\par
+  await axios.post('http://localhost:3000/users/register', \{\par
+    email,\par
+    password,\par
+    city, // Updated to match the form field name\par
+    state, // Updated to match the form field name\par
+  \});\par
+  console.log('User registered successfully.');\par
+\} catch (error) \{\par
+  throw error; // Handle the error in the route\par
+  console.log('User registration failed.'); // You may want to log a failure message here\par
+\}\par
+userModel.js\line // Import required modules\par
+const mongoose = require('mongoose');\par
+const bcrypt = require('bcryptjs');\par
+\par
+// Define the user schema\par
+const userSchema = new mongoose.Schema(\{\par
+  email: \{\par
+    type: String,\par
+    required: true,\par
+    unique: true,\par
+  \},\par
+  password: String,\par
+  // other fields as needed\par
+\});\par
+\par
+// Hash the password before saving it to the database\par
+userSchema.pre('save', async function (next) \{\par
+  const user = this;\par
+  if (user.isModified('password')) \{\par
+    user.password = await bcrypt.hash(user.password, 10);\par
+  \}\par
+  next();\par
+\});\par
+\par
+// Create the User model\par
+const User = mongoose.model('User', userSchema);\par
+\par
+// Export the User model\par
+module.exports = User;\par
+users (folder)\par
+auth.js\par
+registerUser.html\par
+upload.html\par
+userController.js\par
+userModel.js\line // Import required modules\par
+const mongoose = require('mongoose');\par
+const bcrypt = require('bcryptjs');\par
+\par
+// Define the user schema\par
+const userSchema = new mongoose.Schema(\{\par
+  email: \{\par
+    type: String,\par
+    required: true,\par
+    unique: true,\par
+  \},\par
+  password: String,\par
+  // other fields as needed\par
+\});\par
+\par
+// Hash the password before saving it to the database\par
+userSchema.pre('save', async function (next) \{\par
+  const user = this;\par
+  if (user.isModified('password')) \{\par
+    user.password = await bcrypt.hash(user.password, 10);\par
+  \}\par
+  next();\par
+\});\par
+\par
+// Create the User model\par
+const User = mongoose.model('User', userSchema);\par
+\par
+// Export the User model\par
+module.exports = User;\par
+}
+ 
