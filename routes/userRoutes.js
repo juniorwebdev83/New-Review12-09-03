@@ -1,4 +1,3 @@
-// userRoutes.js
 const express = require('express');
 const bcrypt = require('bcrypt');
 const router = express.Router();
@@ -26,6 +25,12 @@ router.post('/register', async (req, res) => {
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
     console.error(error);
+
+    if (error.code === 11000 && error.keyPattern && error.keyPattern.email === 1) {
+      // Duplicate key error, indicating that the email already exists
+      return res.status(400).json({ error: 'Email already exists. Please choose a different email.' });
+    }
+
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
@@ -56,4 +61,6 @@ router.post('/login', async (req, res) => {
   }
 });
 
-module.exports = router;
+// ... rest of the code
+
+module.exports = router; // Add this line to export the router object
