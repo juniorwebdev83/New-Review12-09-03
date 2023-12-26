@@ -1,4 +1,4 @@
-<!-- Review Form -->
+<!-- reviewForm.html -->
 <form action="/reviews/submit-review" method="post" enctype="multipart/form-data">
   <label for="companyName">Company Name:</label>
   <input type="text" id="companyName" name="companyName" required>
@@ -20,6 +20,7 @@
   <textarea id="comments" name="comments" rows="4" required></textarea>
 
   <!-- Add input for image -->
+  <label for="image">Image:</label>
   <input type="file" id="image" name="image" accept="image/*" required>
 
   <button type="submit">Submit Review</button>

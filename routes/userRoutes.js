@@ -1,66 +1,64 @@
+// routes/userRoutes.js
+
 const express = require('express');
-const bcrypt = require('bcrypt');
-const router = express.Router();
+const multer = require('multer');
+const Review = require('../models/Review');
 const User = require('../models/User');
+const { authenticateJWT } = require('../users/auth');
+const cloudinary = require('cloudinary').v2;
+const router = express.Router();
 
-// User registration route
-router.post('/register', async (req, res) => {
+// Set up multer middleware
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage }).single('image');
+
+// Cloudinary configuration
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// Submit a review with image upload
+router.post('/submit-review', authenticateJWT, upload, async (req, res) => {
   try {
-    const { email, password, city, state } = req.body;
+    const { productName, rating, comments, companyId } = req.body;
+    const userId = req.user.userId;
 
-    // Hash the password before saving it to the database
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Check if an image is uploaded
+    let imageUrl = '';
 
-    // Create a new user
-    const newUser = new User({
-      email,
-      password: hashedPassword,
-      city,
-      state,
+    if (req.file) {
+      // If an image is uploaded, upload it to Cloudinary
+      const result = await cloudinary.uploader.upload(req.file.buffer.toString('base64'));
+      imageUrl = result.secure_url;
+    }
+
+    // Create a new Review instance and save it to the database
+    const newReview = new Review({
+      productName,
+      rating,
+      comments,
+      companyId,
+      userId,
+      imageUrl,
+      city: req.body.city,
+      state: req.body.state,
+      county: req.body.county,
     });
 
-    // Save the user to the database
-    await newUser.save();
+    await newReview.save();
 
-    res.status(201).json({ message: 'User registered successfully' });
+    res.status(201).json({ message: 'Review submitted successfully' });
   } catch (error) {
     console.error(error);
 
-    if (error.code === 11000 && error.keyPattern && error.keyPattern.email === 1) {
-      // Duplicate key error, indicating that the email already exists
-      return res.status(400).json({ error: 'Email already exists. Please choose a different email.' });
+    if (error.message.includes('Validation failed')) {
+      return res.status(400).json({ error: 'Invalid input data. Please check your fields.' });
     }
 
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
-// User login route
-router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
-    // Find the user by email
-    const user = await User.findOne({ email });
-
-    // Check if the user exists and the password is correct
-    if (user && (await bcrypt.compare(password, user.password))) {
-      // Generate a JWT token for authentication
-      const token = user.generateAuthToken();
-
-      // Send the token in the response
-      res.json({ token });
-    } else {
-      // If the user doesn't exist or the password is incorrect, send an error response
-      res.status(401).json({ error: 'Invalid email or password' });
-    }
-  } catch (error) {
-    // Handle any errors that occur during the login process
-    console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-// ... rest of the code
-
-module.exports = router; // Add this line to export the router object
+module.exports = router;

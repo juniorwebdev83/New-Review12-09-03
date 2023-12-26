@@ -1,33 +1,30 @@
 const express = require('express');
 const multer = require('multer');
 const Review = require('../models/Review');
-const User = require('../models/User');
 const { authenticateJWT } = require('../users/auth');
-const axios = require('axios');
-const cloudinary = require('cloudinary').v2; // Import cloudinary
-const router = express.Router();
+const cloudinary = require('cloudinary').v2;
+const reviewRouter = express.Router();
 
 // Set up multer middleware
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage }).single('image');
 
-// Function to fetch location info from Google Maps Geocoding API
-// (Assuming you have this function already implemented)
-
 // Submit a review with image upload
-router.post('/submit-review', authenticateJWT, upload, async (req, res) => {
+reviewRouter.post('/submit-review', authenticateJWT, upload, async (req, res) => {
   try {
-    const { productName, rating, comments } = req.body;
-    const userId = req.user.userId;
-    const companyId = req.body.companyId;
+    const { productName, rating, comments, companyId, city, state, county } = req.body;
+
+    // Validate required fields
+    if (!productName || !rating || !comments || !companyId || !city || !state || !county) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
 
     // Check if an image is uploaded
-    let imageUrl = ''; // Initialize imageUrl
+    let imageUrl = '';
 
     if (req.file) {
-      // If an image is uploaded, upload it to Cloudinary
       const result = await cloudinary.uploader.upload(req.file.buffer.toString('base64'));
-      imageUrl = result.secure_url; // Get the secure URL of the uploaded image
+      imageUrl = result.secure_url;
     }
 
     // Your existing code for submitting a review goes here
@@ -39,11 +36,11 @@ router.post('/submit-review', authenticateJWT, upload, async (req, res) => {
       rating,
       comments,
       companyId,
-      userId,
-      imageUrl, // Store the image URL in the database
-      city: req.body.city,
-      state: req.body.state,
-      county: req.body.county,
+      userId: req.user.userId,
+      imageUrl,
+      city,
+      state,
+      county,
     });
 
     await newReview.save();
@@ -60,4 +57,4 @@ router.post('/submit-review', authenticateJWT, upload, async (req, res) => {
   }
 });
 
-module.exports = router;
+module.exports = reviewRouter;
